@@ -53,6 +53,8 @@ async def add(ctx, i=1):
 
 @bot.event
 async def on_message_edit(before, after):
+    if before.content == after.content:
+        return
     channel = before.channel
     probe = db.execute("select text from messages where m_id = ?", (before.id,))
     if not probe.fetchall():
