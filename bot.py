@@ -38,7 +38,7 @@ async def fetch(ctx, num=1):
 
     query = 'select author, text from messages where c_id = ? order by time desc limit ?'
     res = db.execute(query, (channel.id, num)).fetchall()
-    if not res[0][0]:
+    if not res or not res[0][0]:
         await channel.send("Could not find anything.")
     else:
         to_send = []
