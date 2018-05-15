@@ -1,6 +1,5 @@
 import discord
 from discord.ext import commands
-from collections import deque
 import sqlite3 as sql
 
 AUTH_FILE = "auth.txt"
