@@ -1,2 +1,5 @@
-auth.txt
 *.db
+*.json
+*.txt
+__pycache__
+

@@ -1,6 +1,10 @@
 import discord
 from discord.ext import commands
 import sqlite3 as sql
+from decimal import Decimal, InvalidOperation
+import re
+from sheets_append import append
+from datetime import datetime
 
 AUTH_FILE = "auth.txt"
 DATABASE_FILE = "data.db"
@@ -47,8 +51,62 @@ async def fetch(ctx, num=1):
         await channel.send('\n\n'.join(to_send))
 
 @bot.command()
-async def add(ctx, i=1):
-    await ctx.message.channel.send(str(i))
+async def I(ctx, *args):
+    if len(args) < 2:
+        await ctx.message.channel.send('Woof?')
+    else:
+        await _bought(ctx, *args[1:])
+
+@bot.command()
+async def bought(ctx, *args):
+    await _bought(ctx, *args)
+    
+def last_index(condition, itr):
+    '''Return last index that satifies condition, else raise ValueError'''
+    return max(loc for loc, val in enumerate(itr) if condition(itr))
+
+
+async def _bought(ctx, *args):
+    joined_args = ' '.join(args)
+
+    try:
+        name_of_item = re.findall('.+(?= for)+', joined_args)[0]
+        money_string = re.sub('.+ for+ ', '', joined_args)
+        money_decimal = convert_money_str_to_decimal(money_string)
+
+    except ValueError:
+        await ctx.message.channel.send("I don't understand.\n"
+                "Usage: doggo, [I] bought <item> for <amount>\n"
+                "You can only record between $0.01 and $5000")
+    except IndexError:
+        await ctx.message.channel.send("I don't understand.\n"
+                "Usage: doggo, [I] bought <item> for <amount>\n"
+                "You can only record between $0.01 and $5000\n"
+                "It seems like you didn't specify what you bought.\n")
+    else:
+        row = [str(datetime.now()),
+                'id{}'.format(ctx.author.id), name_of_item, str(money_decimal)]
+
+        append(row)
+        await ctx.message.channel.send('Ok, recorded that you spent ${} on {}'
+                .format(money_decimal, name_of_item))
+
+
+
+    
+
+def convert_money_str_to_decimal(money_str):
+    word = money_str.strip('$!,.')
+    try:
+        d = Decimal(word).quantize(Decimal('0.01'))
+        if not 0.01 <= d <= 5000:
+            raise ValueError
+        return d
+    except InvalidOperation:
+        raise ValueError
+
+
+
 
 @bot.event
 async def on_message_edit(before, after):
