@@ -28,9 +28,7 @@ async def on_ready():
     print('------')
 
 
-@bot.command()
-async def fetch(ctx, num=1):
-    channel = ctx.message.channel
+async def _fetch(channel, num=1):
 
     if num < 1:
         await channel.send("Doggo is confused")
@@ -50,23 +48,13 @@ async def fetch(ctx, num=1):
             to_send.append("{}: {}".format(author, text))
         await channel.send('\n\n'.join(to_send))
 
-@bot.command()
-async def I(ctx, *args):
-    if len(args) < 2:
-        await ctx.message.channel.send('Woof?')
-    else:
-        await _bought(ctx, *args[1:])
-
-@bot.command()
-async def bought(ctx, *args):
-    await _bought(ctx, *args)
-    
+   
 def last_index(condition, itr):
     '''Return last index that satifies condition, else raise ValueError'''
     return max(loc for loc, val in enumerate(itr) if condition(itr))
 
 
-async def _bought(ctx, *args):
+async def _bought(channel, author, *args):
     joined_args = ' '.join(args)
 
     try:
@@ -75,23 +63,55 @@ async def _bought(ctx, *args):
         money_decimal = convert_money_str_to_decimal(money_string)
 
     except ValueError:
-        await ctx.message.channel.send("I don't understand.\n"
-                "Usage: doggo, [I] bought <item> for <amount>\n"
+        await channel.send("I don't understand.\n"
+                "Usage: doggo[,] [I] bought <item> for <amount>\n"
                 "You can only record between $0.01 and $5000")
     except IndexError:
-        await ctx.message.channel.send("I don't understand.\n"
-                "Usage: doggo, [I] bought <item> for <amount>\n"
+        await channel.send("I don't understand.\n"
+                "Usage: doggo[,] [I] bought <item> for <amount>\n"
                 "You can only record between $0.01 and $5000\n"
                 "It seems like you didn't specify what you bought.\n")
     else:
         row = [str(datetime.now()),
-                'id{}'.format(ctx.author.id), name_of_item, str(money_decimal)]
+                'id{}'.format(author.id), name_of_item, str(money_decimal)]
 
         append(row)
-        await ctx.message.channel.send('Ok, recorded that you spent ${} on {}'
+        await channel.send('Ok, recorded that you spent ${} on {}'
                 .format(money_decimal, name_of_item))
 
 
+
+@bot.event
+async def on_message(message):
+    if not message.content.lower().startswith('doggo'):
+        return
+
+    words = message.content.split()[1:]
+
+    if not words:
+        return
+
+    command = words[0]
+    arguments = words[1:]
+
+    if 'i' == command.lower():
+        if not arguments:
+            await message.channel.send('You what?')
+        else:
+            command = arguments[0]
+            arguments = arguments[1:]
+
+    if 'bought' in command.lower():
+        await _bought(message.channel, message.author, *arguments)
+
+    elif 'fetch' in command.lower():
+        if not arguments:
+            await _fetch(message.channel)
+        else:
+            try:
+                await _fetch(message.channel, int(arguments[0]))
+            except ValueError:
+                await message.channel.send('Doggo is confused.')
 
     
 
