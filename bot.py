@@ -9,7 +9,7 @@ from datetime import datetime
 AUTH_FILE = "auth.txt"
 DATABASE_FILE = "data.db"
 
-bot = commands.Bot(command_prefix='doggo, ', description='A very good doggo')
+# bot = commands.Bot(command_prefix='doggo, ', description='A very good doggo')
 db = sql.Connection(DATABASE_FILE)
 
 def create_table():
@@ -48,11 +48,6 @@ async def _fetch(channel, num=1):
             to_send.append("{}: {}".format(author, text))
         await channel.send('\n\n'.join(to_send))
 
-   
-def last_index(condition, itr):
-    '''Return last index that satifies condition, else raise ValueError'''
-    return max(loc for loc, val in enumerate(itr) if condition(itr))
-
 
 async def _bought(channel, author, *args):
     joined_args = ' '.join(args)
@@ -78,8 +73,6 @@ async def _bought(channel, author, *args):
         append(row)
         await channel.send('Ok, recorded that you spent ${} on {}'
                 .format(money_decimal, name_of_item))
-
-
 
 @bot.event
 async def on_message(message):
@@ -113,7 +106,6 @@ async def on_message(message):
             except ValueError:
                 await message.channel.send('Doggo is confused.')
 
-    
 
 def convert_money_str_to_decimal(money_str):
     word = money_str.lstrip('$').rstrip('!,.')
@@ -124,8 +116,6 @@ def convert_money_str_to_decimal(money_str):
         return d
     except InvalidOperation:
         raise ValueError
-
-
 
 
 @bot.event
