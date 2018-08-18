@@ -116,7 +116,7 @@ async def on_message(message):
     
 
 def convert_money_str_to_decimal(money_str):
-    word = money_str.strip('$!,.')
+    word = money_str.lstrip('$').rstrip('!,.')
     try:
         d = Decimal(word).quantize(Decimal('0.01'))
         if not 0.01 <= d <= 5000:
