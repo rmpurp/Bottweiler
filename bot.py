@@ -9,7 +9,7 @@ from datetime import datetime
 AUTH_FILE = "auth.txt"
 DATABASE_FILE = "data.db"
 
-# bot = commands.Bot(command_prefix='doggo, ', description='A very good doggo')
+bot = commands.Bot(command_prefix='doggo, ', description='A very good doggo')
 db = sql.Connection(DATABASE_FILE)
 
 def create_table():
@@ -105,6 +105,12 @@ async def on_message(message):
                 await _fetch(message.channel, int(arguments[0]))
             except ValueError:
                 await message.channel.send('Doggo is confused.')
+
+    elif command.lower() == 'link':
+        spreadsheet_id, _ = read_file('spreadsheet.txt').split()
+        await message.channel.send('https://docs.google.com/spreadsheets/d/{}/'.format(spreadsheet_id))
+        
+
 
 
 def convert_money_str_to_decimal(money_str):
