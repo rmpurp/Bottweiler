@@ -1,6 +1,7 @@
 #!/bin/bash
 
-until python3.6 bot.py; do
-    echo "Bot crashed.............. responding."
+while true; do
+    python3.6 bot.py
     sleep 1
 done
+
