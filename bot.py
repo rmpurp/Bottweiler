@@ -76,6 +76,10 @@ async def _bought(channel, author, *args):
 
 @bot.event
 async def on_message(message):
+
+    if message.author.bot:
+        return
+
     if not message.content.lower().startswith('doggo'):
         return
 
