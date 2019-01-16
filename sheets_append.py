@@ -1,6 +1,7 @@
 from googleapiclient.discovery import build
 from httplib2 import Http
-from oauth2client import file, client, tools
+# from oauth2client import file, client, tools
+from google.oauth2 import credentials
 from datetime import datetime
 import functools
 
@@ -20,12 +21,11 @@ def __append(service, spreadsheet, range, data_row):
 
 def __setup():
     global append
-    store = file.Storage('token.json')
-    creds = store.get()
-    if not creds or creds.invalid:
-        flow = client.flow_from_clientsecrets('credentials.json', SCOPES)
-        creds = tools.run_flow(flow, store)
-    service = build('sheets', 'v4', http=creds.authorize(Http()))
+    creds = credentials.Credentials.from_authorized_user_file(
+            'token.json'
+    )
+
+    service = build('sheets', 'v4', credentials=creds)
 
     spreadsheet_id, range_name = read_file('spreadsheet.txt')
 
